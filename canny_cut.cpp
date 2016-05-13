@@ -16,7 +16,7 @@ int lowThreshold=90;
 int const max_lowThreshold = 100;
 int nratio = 3;
 int kernel_size = 3;
-char* window_name = "Edge Map";
+char* window_name = "Video";
 
 RNG rng(12345);
 
@@ -148,35 +148,120 @@ void CannyThreshold(int, void*)
         cout << j << "vertexs point :" << vertexs.at(j) << endl;
     }
     doCutUV(vertexs);
-  /// Using Canny's output as a mask, we display our result
-    imshow( window_name, dst );
+    // Using Canny's output as a mask, we display our result
+    imshow( "cut", dst );
 }
+
+
+void detectFromVideo(Mat &frame)
+{
+    Mat detected;
+    Canny( frame, detected, lowThreshold, lowThreshold*nratio, kernel_size );
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    findContours( detected, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0)  );
+    
+    // Get the moments
+    vector<Moments> mu(contours.size() );
+    //  Get the mass centers:
+    vector<Point2f> mc( contours.size()  );
+    //用来保存识别的顶点
+    vector<Point2f> vertexs; 
+    for(int i=0; i<contours.size(); i++)
+    {
+        int h = i;
+        int c = 0;
+        while(hierarchy.at(h)[2] != -1)
+        {
+            h = hierarchy.at(h)[2];
+            c++;
+        }
+        mu[i] = moments( contours[i], false  );
+        mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00  );
+        if( c >= 7 && c < 10 )
+        {
+            cout << i << " hierarchy size:" << c << endl;
+            //cout << i << "moment point :" << mc[i] << endl;
+            if ( addToVertexs(vertexs, mc[i]) )
+            {
+                //测试展示
+                Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255)  );
+                drawContours( frame, contours, i, color, 2, 8, hierarchy, 0, Point()  );
+            }
+        }
+    }
+  
+    cv::Point2f center(0,0);
+    for (int i = 0; i < vertexs.size(); i++)
+        center += vertexs[i];
+    center *= (1. / vertexs.size());
+
+    sortCorners(vertexs, center);
+    if (vertexs.size() == 0)
+    {
+        //std::cout << "The corners were not sorted correctly!" << std::endl;
+        return;
+    }
+    //测试展示
+    for (int j=0; j<vertexs.size(); j++)
+    {
+        Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255)  );
+        int first = j;
+        int second = j+1 == vertexs.size() ? 0 : j+1; 
+        line(frame, vertexs.at(first), vertexs.at(second), rng.uniform(0, 255), 4);
+        circle( frame, vertexs.at(j), 4, color, -1, 8, 0  );
+        cout << j << "vertexs point :" << vertexs.at(j) << endl;
+    }
+
+}    
 
 /** @function main */
 int main( int argc, char** argv )
 {
-  /// Load an image
-  src = imread( argv[1] );
 
-  if( !src.data )
-  { return -1; }
+    namedWindow( window_name, CV_WINDOW_NORMAL );
+    VideoCapture cap(0);  
+    if(!cap.isOpened())  
+    {  
+        cout << "can't find camera" << endl;
+        return -1;  
+    }  
+    Mat frame;
+    Mat gray;
+    //Mat empty;
+    //namedWindow("trackbar", CV_WINDOW_NORMAL);
+    //createTrackbar( "Min Threshold:", "trackbar", &lowThreshold, max_lowThreshold, CannyThreshold );
+    //imshow("trackbar", empty);
+    while (true)
+    {
+        cap >> frame;
+        if (frame.empty() ) break;
+        cvtColor( frame, gray, CV_BGR2GRAY );
+        detectFromVideo(gray);
+        imshow(window_name, gray);
+        //CannyThreshold(0, 0 );  
+    }    
+  /// Load an image
+  //src = imread( argv[1] );
+
+  //if( !src.data ) { return -1; }
 
   /// Create a matrix of the same type and size as src (for dst)
-  dst.create( src.size(), src.type() );
+  //dst.create( src.size(), src.type() );
 
   //GaussianBlur(src, src, Size(5,5), 0);
 
   /// Convert the image to grayscale
-  cvtColor( src, src_gray, CV_BGR2GRAY );
+  //cvtColor( src, src_gray, CV_BGR2GRAY );
 
   /// Create a window
-  namedWindow( window_name, CV_WINDOW_NORMAL );
+  //namedWindow( window_name, CV_WINDOW_NORMAL );
 
   /// Create a Trackbar for user to enter threshold
-  createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
+  //createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
 
   /// Show the image
-  CannyThreshold(0, 0);
+  //CannyThreshold(0, 0);
 
   /// Wait until user exit program by pressing a key
   waitKey(0);

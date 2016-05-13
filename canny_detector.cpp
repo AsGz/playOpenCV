@@ -42,12 +42,12 @@ void CannyThreshold(int, void*)
         int c = 0;
         while(hierarchy.at(h)[2] != -1)
         {
-            h = hierarchy.at(h)[2];
+            h = hierarchy.at(h)[2];  
+            cout << h << " hierarchy size:" << c  << ", hierarchys:" << hierarchy.at(h) << endl;
             c++;
         }
         if( c >= 5 )
         {
-            cout << i << " hierarchy size:" << c << endl;
             drawContours( dst, contours, i, Scalar(255,255,0), 2, 8, hierarchy, 0, Point()  );
         }
     } 
