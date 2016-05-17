@@ -10,6 +10,13 @@ target_link_libraries(canny_detector ${OpenCV_LIBS})
 add_executable(canny_cut canny_cut.cpp)
 target_link_libraries(canny_cut ${OpenCV_LIBS})
 
+add_executable(drawing drawing.cpp)
+target_link_libraries(drawing ${OpenCV_LIBS})
+
+
+add_executable(histograms histograms.cpp)
+target_link_libraries(histograms ${OpenCV_LIBS})
+
 
 
 
