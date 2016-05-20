@@ -13,9 +13,24 @@ target_link_libraries(canny_cut ${OpenCV_LIBS})
 add_executable(drawing drawing.cpp)
 target_link_libraries(drawing ${OpenCV_LIBS})
 
-
 add_executable(histograms histograms.cpp)
 target_link_libraries(histograms ${OpenCV_LIBS})
+
+add_executable(histogram_calculation histogram_calculation.cpp)
+target_link_libraries(histogram_calculation ${OpenCV_LIBS})
+
+add_executable(histogram_equalization histogram_equalization.cpp)
+target_link_libraries(histogram_equalization ${OpenCV_LIBS})
+
+add_executable(histograms_matching histograms_matching.cpp)
+target_link_libraries(histograms_matching ${OpenCV_LIBS})
+
+add_executable(mat_add mat_add.cpp)
+target_link_libraries(mat_add ${OpenCV_LIBS})
+
+#add templte
+#add_executable(newadd newadd.cpp)
+#target_link_libraries(newadd ${OpenCV_LIBS})
 
 
 
