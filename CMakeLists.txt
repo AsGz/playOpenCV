@@ -28,6 +28,18 @@ target_link_libraries(histograms_matching ${OpenCV_LIBS})
 add_executable(mat_add mat_add.cpp)
 target_link_libraries(mat_add ${OpenCV_LIBS})
 
+add_executable(sobel_test sobel_test.cpp)
+target_link_libraries(sobel_test ${OpenCV_LIBS})
+
+add_executable(quad-segmentation quad-segmentation.cpp)
+target_link_libraries(quad-segmentation ${OpenCV_LIBS})
+
+add_executable(hough_lines hough_lines.cpp)
+target_link_libraries(hough_lines ${OpenCV_LIBS})
+
+add_executable(stitching_detail stitching_detail.cpp)
+target_link_libraries(stitching_detail ${OpenCV_LIBS})
+
 #add templte
 #add_executable(newadd newadd.cpp)
 #target_link_libraries(newadd ${OpenCV_LIBS})
